@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html xmlns= "http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>AI-0190</title>
+        <link rel="stylesheet" href="css/style.css"/>
+        <link rel="stylesheet" href="css/dragdealer.css"/>       
+        <script src="js/jquery-1.10.2.min.js"></script>
+        <script src="js/raphael-min.js"></script>
+        <script src="js/jquery.ui.touch-punch.js"></script>
+        <script src="js/dragdealer.js"></script>
+        <script src="js/rAF.js"></script>
+        <script src="js/main.js"></script>
+    </head>
+
+    <body onload="init()">
+    	<div id="content">
+            
+            <div id='raphael'></div>
+            <div id="main">
+                <div id='playPause' class='btn'>Pause</div>
+                <div id='reset' class='btn'>Reset</div>
+
+                <div id="vSlider" class="dragdealer">
+                    <div class="handle red-bar"></div>
+                </div>
+                <div id="vDiv">Velocidade: 2</div>
+
+                <div id="kSlider" class="dragdealerVertical">
+                    <div class="handle red-bar"></div>
+                </div>
+                <div id="kDiv">K: 2</div>
+
+            </div>
+
+
+        </div>
+        
+    </body>
+</html>
