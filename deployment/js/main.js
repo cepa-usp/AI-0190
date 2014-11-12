@@ -32,9 +32,7 @@ var graph = {
 		y:circle.center.y
 	},
 	graph: null,
-	axis: null,
-	graphStr:"",
-	translate:0
+	axis: null
 };
 
 function init(){
@@ -44,8 +42,8 @@ function init(){
 	raphael = Raphael("raphael");
 
 	graph.axis = raphael.path("M0," + graph.center.y + "L" + $("#raphael").width() + "," + graph.center.y).attr({"stroke-width": "2", "stroke": "#000"});
-	graph.graphStr = "M" + t + "," + (Math.cos(k * (circle.center.x/TO_METER) - v * t) * cosMulti + graph.center.y);
-	graph.graph = raphael.path(graph.graphStr).attr({"stroke-width": "1", "stroke": "#00F"});
+	graph.graph = raphael.path("M0,0").attr({"stroke-width": "1", "stroke": "#00F"});
+	updateGraph();
 
 	circle.graph = raphael.circle(circle.center.x, circle.center.y, circle.ray).attr({"stroke-width": "3", "stroke": "#000", "fill": "#99F"});
 	circle.arrow = raphael.path("M0,0").attr({"stroke-width": "3", "stroke": "#FF0000", fill:"#FF0000"});
@@ -117,8 +115,6 @@ function reset(){
 	drawArrow();
 	graph.graphStr = "M" + t + "," + (Math.cos(k * (circle.center.x/TO_METER) - v * t) * cosMulti + graph.center.y);
 	graph.graph.attr("path", graph.graphStr);
-	graph.graph.translate(graph.translate);
-	graph.translate = 0;
 }
 
 function vMoving(x,y){
@@ -131,6 +127,7 @@ function kMoving(x,y){
 	$("#kDiv").html("k: " + k);
 }
 
+var gt = 0;
 function update(timestamp){
 	//Tempo passado desdo a últim chamada
 	var dt = (timestamp - current)/1000;
@@ -146,11 +143,15 @@ function update(timestamp){
 		if(mouseDown) circle.graph.attr({cx: circle.center.x, cy: circle.center.y});
 		circle.angle = k * (circle.center.x/TO_METER) - v * t;
 		drawArrow();
+		
+		/*if(gt >= 2){
+			updateGraph();
+			gt = 0;
+		}else{
+			gt++;
+		}*/
 		updateGraph();
-		if(t * 50 > $("#raphael").width() * 0.7){
-			graph.translate += dt * 50;
-			graph.graph.translate(-dt * 50);
-		}
+		
 	}else{
 		if(mouseDown) {
 			circle.graph.attr({cx: circle.center.x, cy: circle.center.y});
@@ -167,8 +168,13 @@ function drawArrow(){
 }
 
 function updateGraph(){
-	graph.graphStr += "L" + t * 50 + "," + (Math.cos(k * (circle.center.x/TO_METER) - v * t) * cosMulti + graph.center.y)
-	graph.graph.attr("path", graph.graphStr);
+	var str = "M";
+	for (var i = 0; i < $("#raphael").width(); i+= 2) {
+		str += i + "," + (Math.cos(k * (i + circle.center.x)/TO_METER - v * t) * cosMulti + graph.center.y) + "L";
+
+	};
+	//graph.graphStr += "L" + t * 50 + "," + (Math.cos(k * (circle.center.x/TO_METER) - v * t) * cosMulti + graph.center.y)
+	graph.graph.attr("path", str);
 }
 
 function distance(x1, y1, x2, y2){
