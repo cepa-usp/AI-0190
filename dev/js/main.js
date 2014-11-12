@@ -169,8 +169,8 @@ function drawArrow(){
 
 function updateGraph(){
 	var str = "M";
-	for (var i = 0; i < $("#raphael").width(); i+= 2) {
-		str += i + "," + (Math.cos(k * (i + circle.center.x)/TO_METER - v * t) * cosMulti + graph.center.y) + "L";
+	for (var i = 0; i < $("#raphael").width(); i+= 3) {
+		str += i + "," + (Math.cos(k * i/TO_METER - v * t) * cosMulti + graph.center.y) + "L";
 
 	};
 	//graph.graphStr += "L" + t * 50 + "," + (Math.cos(k * (circle.center.x/TO_METER) - v * t) * cosMulti + graph.center.y)
