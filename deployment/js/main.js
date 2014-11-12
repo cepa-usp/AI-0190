@@ -153,7 +153,7 @@ function update(timestamp){
 			updateCircle();
 			updateVertical();
 		}
-		circle.angle = k * (circle.center.x/TO_METER) - v * t;
+		circle.angle = (k * (circle.center.x/TO_METER) - v * t) * -1;
 		drawArrow();
 		
 		/*if(gt >= 2){
@@ -195,7 +195,7 @@ function updateVertical(){
 
 function updateCircle(){
 	circle.graph.attr({cx: circle.center.x, cy: circle.center.y});
-	circle.angle = k * (circle.center.x/TO_METER) - v * t;
+	circle.angle = (k * (circle.center.x/TO_METER) - v * t) * -1;
 }
 
 function distance(x1, y1, x2, y2){
