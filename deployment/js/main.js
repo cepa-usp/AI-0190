@@ -44,12 +44,10 @@ function init(){
 
 	graph.axis = raphael.path("M0," + graph.center.y + "L" + $("#raphael").width() + "," + graph.center.y).attr({"stroke-width": "2", "stroke": "#000"});
 	graph.graph = raphael.path("M0,0").attr({"stroke-width": "1", "stroke": "#00F"});
-	updateGraph();
 
 	circle.graph = raphael.circle(circle.center.x, circle.center.y, circle.ray).attr({"stroke-width": "3", "stroke": "#000", "fill": "#99F", opacity: 0.5});
-	circle.vertical = raphael.path("M" + circle.center.x + "," + (circle.center.y - circle.ray) + "L" + circle.center.x + "," + (circle.center.y + circle.ray)).attr({"stroke-width": "1", "stroke": "#0000FF"});
+	circle.vertical = raphael.path("M0,0").attr({"stroke-width": "1", "stroke": "#0000FF"});
 	circle.arrow = raphael.path("M0,0").attr({"stroke-width": "3", "stroke": "#FF0000", fill:"#FF0000"});
-	//drawArrow();
 
 	vSlider = new Dragdealer('vSlider', {slide:false, steps:3, snap:true, x:0, animationCallback: vMoving});
 	kSlider = new Dragdealer('kSlider', {slide:false, steps:3, snap:true, x:0.5, animationCallback: kMoving});
@@ -99,6 +97,9 @@ function fmu(evt){
 
 	circle.center.x += diff.x;
 	circle.center.y += diff.y;
+	
+	updateCircle();
+	updateVertical();
 }
 
 function playPause(){
@@ -113,20 +114,31 @@ function playPause(){
 
 function reset(){
 	t = 0;
-	circle.angle = k * circle.center.x - v * t;
+	updateCircle();
 	drawArrow();
-	graph.graphStr = "M" + t + "," + (Math.cos(k * (circle.center.x/TO_METER) - v * t) * cosMulti + graph.center.y);
-	graph.graph.attr("path", graph.graphStr);
+	updateGraph();
 }
 
 function vMoving(x,y){
 	v = x*2 + 1;
 	$("#vDiv").html("v: " + v);
+	if(paused) {
+		updateGraph();
+		updateCircle();
+		drawArrow();
+		updateVertical();
+	}
 }
 
 function kMoving(x,y){
 	k = x * 2 + 1;
 	$("#kDiv").html("k: " + k);
+	if(paused) {
+		updateGraph();
+		updateCircle();
+		drawArrow();
+		updateVertical();
+	}
 }
 
 var gt = 0;
@@ -134,17 +146,12 @@ function update(timestamp){
 	//Tempo passado desdo a últim chamada
 	var dt = (timestamp - current)/1000;
 	current = timestamp;
-
-	if(mouseDown){
-		
-		drawArrow();
-	}
 	
 	if(!paused){
 		t += dt;
 		if(mouseDown) {
-			circle.graph.attr({cx: circle.center.x, cy: circle.center.y});
-			circle.vertical.attr("path", "M" + circle.center.x + "," + (circle.center.y - circle.ray) + "L" + circle.center.x + "," + (circle.center.y + circle.ray));
+			updateCircle();
+			updateVertical();
 		}
 		circle.angle = k * (circle.center.x/TO_METER) - v * t;
 		drawArrow();
@@ -159,9 +166,9 @@ function update(timestamp){
 		
 	}else{
 		if(mouseDown) {
-			circle.graph.attr({cx: circle.center.x, cy: circle.center.y});
-			circle.angle = k * (circle.center.x/TO_METER) - v * t;
+			updateCircle();
 			drawArrow();
+			updateVertical();
 		}
 	}
 
@@ -180,6 +187,15 @@ function updateGraph(){
 	};
 	//graph.graphStr += "L" + t * 50 + "," + (Math.cos(k * (circle.center.x/TO_METER) - v * t) * cosMulti + graph.center.y)
 	graph.graph.attr("path", str);
+}
+
+function updateVertical(){
+	circle.vertical.attr("path", "M" + circle.center.x + ",0" + "L" + circle.center.x + "," + $("#raphael").height());
+}
+
+function updateCircle(){
+	circle.graph.attr({cx: circle.center.x, cy: circle.center.y});
+	circle.angle = k * (circle.center.x/TO_METER) - v * t;
 }
 
 function distance(x1, y1, x2, y2){
