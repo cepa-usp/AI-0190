@@ -182,7 +182,7 @@ function drawArrow(){
 function updateGraph(){
 	var str = "M";
 	for (var i = 0; i < $("#raphael").width(); i+= 3) {
-		str += i + "," + (Math.cos(k * i/TO_METER - v * t) * TO_METER + graph.center.y) + "L";
+		str += i + "," + (-Math.cos(k * i/TO_METER - v * t) * TO_METER + graph.center.y) + "L";
 
 	};
 	//graph.graphStr += "L" + t * 50 + "," + (Math.cos(k * (circle.center.x/TO_METER) - v * t) * cosMulti + graph.center.y)
@@ -198,6 +198,3 @@ function updateCircle(){
 	circle.angle = (k * (circle.center.x/TO_METER) - v * t) * -1;
 }
 
-function distance(x1, y1, x2, y2){
-	return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-}
