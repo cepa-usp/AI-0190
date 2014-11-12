@@ -11,13 +11,14 @@ var t = 0;//tempo da animação
 
 var circle = {
 	center: {
-		x: 2 * TO_METER,
+		x: 0 * TO_METER,
 		y: 3 * TO_METER
 	},
 	angle: 0,
 	ray: 1 * TO_METER,
 	graph: null,
-	arrow: null
+	arrow: null,
+	vertical: null
 }
 
 var btnPlayPause;
@@ -45,7 +46,8 @@ function init(){
 	graph.graph = raphael.path("M0,0").attr({"stroke-width": "1", "stroke": "#00F"});
 	updateGraph();
 
-	circle.graph = raphael.circle(circle.center.x, circle.center.y, circle.ray).attr({"stroke-width": "3", "stroke": "#000", "fill": "#99F"});
+	circle.graph = raphael.circle(circle.center.x, circle.center.y, circle.ray).attr({"stroke-width": "3", "stroke": "#000", "fill": "#99F", opacity: 0.5});
+	circle.vertical = raphael.path("M" + circle.center.x + "," + (circle.center.y - circle.ray) + "L" + circle.center.x + "," + (circle.center.y + circle.ray)).attr({"stroke-width": "1", "stroke": "#0000FF"});
 	circle.arrow = raphael.path("M0,0").attr({"stroke-width": "3", "stroke": "#FF0000", fill:"#FF0000"});
 	//drawArrow();
 
@@ -140,7 +142,10 @@ function update(timestamp){
 	
 	if(!paused){
 		t += dt;
-		if(mouseDown) circle.graph.attr({cx: circle.center.x, cy: circle.center.y});
+		if(mouseDown) {
+			circle.graph.attr({cx: circle.center.x, cy: circle.center.y});
+			circle.vertical.attr("path", "M" + circle.center.x + "," + (circle.center.y - circle.ray) + "L" + circle.center.x + "," + (circle.center.y + circle.ray));
+		}
 		circle.angle = k * (circle.center.x/TO_METER) - v * t;
 		drawArrow();
 		
@@ -170,7 +175,7 @@ function drawArrow(){
 function updateGraph(){
 	var str = "M";
 	for (var i = 0; i < $("#raphael").width(); i+= 3) {
-		str += i + "," + (Math.cos(k * i/TO_METER - v * t) * cosMulti + graph.center.y) + "L";
+		str += i + "," + (Math.cos(k * i/TO_METER - v * t) * TO_METER + graph.center.y) + "L";
 
 	};
 	//graph.graphStr += "L" + t * 50 + "," + (Math.cos(k * (circle.center.x/TO_METER) - v * t) * cosMulti + graph.center.y)
