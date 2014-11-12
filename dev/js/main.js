@@ -1,10 +1,11 @@
 var TO_METER = 100;//100 pixels = 1 metro
+var cosMulti = 100;
 var current = 0;
 
 var vSlider;
 var kSlider;
 
-var v = 2;//1 a 3
+var v = 1;//1 a 3
 var k = 2;//1 a 3
 var t = 0;//tempo da animação
 
@@ -25,17 +26,32 @@ var mouseDown = false;
 var btnReset;
 
 var raphael;
+var graph = {
+	center: {
+		x:0,
+		y:circle.center.y
+	},
+	graph: null,
+	axis: null,
+	graphStr:"",
+	translate:0
+};
 
 function init(){
 	btnPlayPause = $("#playPause");
 	btnReset = $("#reset");
 
 	raphael = Raphael("raphael");
+
+	graph.axis = raphael.path("M0," + graph.center.y + "L" + $("#raphael").width() + "," + graph.center.y).attr({"stroke-width": "2", "stroke": "#000"});
+	graph.graphStr = "M" + t + "," + (Math.cos(k * (circle.center.x/TO_METER) - v * t) * cosMulti + graph.center.y);
+	graph.graph = raphael.path(graph.graphStr).attr({"stroke-width": "1", "stroke": "#00F"});
+
 	circle.graph = raphael.circle(circle.center.x, circle.center.y, circle.ray).attr({"stroke-width": "3", "stroke": "#000", "fill": "#99F"});
 	circle.arrow = raphael.path("M0,0").attr({"stroke-width": "3", "stroke": "#FF0000", fill:"#FF0000"});
 	//drawArrow();
 
-	vSlider = new Dragdealer('vSlider', {slide:false, steps:3, snap:true, x:0.5, animationCallback: vMoving});
+	vSlider = new Dragdealer('vSlider', {slide:false, steps:3, snap:true, x:0, animationCallback: vMoving});
 	kSlider = new Dragdealer('kSlider', {slide:false, steps:3, snap:true, x:0.5, animationCallback: kMoving});
 
 	btnPlayPause.on("click", playPause);
@@ -76,6 +92,13 @@ function fmu(evt){
 	mouseDown = false;
 	$(window).off("mousemove", movingMouse);
 	$(window).off("mouseup", fmu);
+	var diff = {
+		x: evt.clientX - mousePos.x,
+		y: evt.clientY - mousePos.y
+	};
+
+	circle.center.x += diff.x;
+	circle.center.y += diff.y;
 }
 
 function playPause(){
@@ -92,14 +115,20 @@ function reset(){
 	t = 0;
 	circle.angle = k * circle.center.x - v * t;
 	drawArrow();
+	graph.graphStr = "M" + t + "," + (Math.cos(k * (circle.center.x/TO_METER) - v * t) * cosMulti + graph.center.y);
+	graph.graph.attr("path", graph.graphStr);
+	graph.graph.translate(graph.translate);
+	graph.translate = 0;
 }
 
 function vMoving(x,y){
 	v = x*2 + 1;
+	$("#vDiv").html("v: " + v);
 }
 
 function kMoving(x,y){
 	k = x * 2 + 1;
+	$("#kDiv").html("k: " + k);
 }
 
 function update(timestamp){
@@ -117,6 +146,11 @@ function update(timestamp){
 		if(mouseDown) circle.graph.attr({cx: circle.center.x, cy: circle.center.y});
 		circle.angle = k * (circle.center.x/TO_METER) - v * t;
 		drawArrow();
+		updateGraph();
+		if(t * 50 > $("#raphael").width() * 0.7){
+			graph.translate += dt * 50;
+			graph.graph.translate(-dt * 50);
+		}
 	}else{
 		if(mouseDown) {
 			circle.graph.attr({cx: circle.center.x, cy: circle.center.y});
@@ -130,6 +164,11 @@ function update(timestamp){
 
 function drawArrow(){
 	circle.arrow.attr("path", "M" + circle.center.x + "," + circle.center.y + "L" + (circle.center.x + (circle.ray * Math.cos(circle.angle))) + "," + (circle.center.y + (circle.ray * Math.sin(circle.angle))))
+}
+
+function updateGraph(){
+	graph.graphStr += "L" + t * 50 + "," + (Math.cos(k * (circle.center.x/TO_METER) - v * t) * cosMulti + graph.center.y)
+	graph.graph.attr("path", graph.graphStr);
 }
 
 function distance(x1, y1, x2, y2){
